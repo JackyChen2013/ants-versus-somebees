@@ -1,9 +1,9 @@
 """
 The ants module implements game logic for Ants Vs. SomeBees.
-Name:Yisheng Goh and Huei Lieu
+Name: Yisheng Goh and Huei Lieu
 Login: cs61a-ik and cs61a-km
 TA: Andrew Huang and Brian Hou
-Section:105 and 108
+Section: 105 and 108
 """
 
 import random
