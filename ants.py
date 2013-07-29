@@ -52,13 +52,12 @@ class Place(object):
             # Phase 2: Special handling for BodyguardAnt
             "*** YOUR CODE HERE ***"
             if self.ant is not None:
-                assert insect.is_ant()
                 if self.ant.can_contain(insect):
                     self.ant.contain_ant(insect)
+                    self.ant.place = self
+                    return
                 elif insect.can_contain(self.ant):
                     insect.contain_ant(self.ant)
-                    self.ant = insect
-                    return
                 else:
                     assert self.ant is None, 'Two ants in {0}'.format(self)
             self.ant = insect
@@ -75,6 +74,8 @@ class Place(object):
             "*** YOUR CODE HERE ***"
             if insect.container:
                 self.ant = insect.ant
+                insect.place = self
+                return
             self.ant = None
 
         insect.place = None
@@ -178,7 +179,7 @@ class Ant(Insect):
     def can_contain(self, other):
         if not other.is_ant():
             raise TypeError("Other needs to be of Ant type")
-        if self.container and self.container is None and not other.container:
+        if self.container and self.ant is None and not other.container:
             return True
         return False
 
