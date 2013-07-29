@@ -608,15 +608,34 @@ class PrincessAnt(Ant):
 
     name = 'Princess'
     "*** YOUR CODE HERE ***"
-    implemented = False
+    food_cost = 6
+    implemented = True
 
     def __init__(self):
         "*** YOUR CODE HERE ***"
+        Ant.__init__(self)
+        self.has_given_buff = False
 
     def action(self, colony):
         """If this PrincessAnt has never taken an action before, it should add 1
         point of armor to all other Ants in the tunnel."""
         "*** YOUR CODE HERE ***"
+        if not self.has_given_buff:
+            def buff_effect(self, place, end):
+                print("Buffing ants in " + str(place))
+                if place is end:
+                    return
+                if place.ant is not None and place.ant is not self:
+                    # If there's an ant, and it isn't the Princess,
+                    place.ant.armor += 1
+                if end is colony.hive:
+                    buff_effect(self, place.entrance, end)
+                else:
+                    buff_effect(self, place.exit, end)
+            buff_effect(self, self.place.entrance, colony.hive)
+            buff_effect(self, self.place, colony.queen)
+            self.has_given_buff = True
+        assert self.has_given_buff
 
 class AntRemover(Ant):
     """Allows the player to remove ants from the board in the GUI."""
