@@ -33,7 +33,9 @@ class Place(object):
         self.entrance = None  # A Place
         # Phase 1: Add an entrance to the exit
         "*** YOUR CODE HERE ***"
-        if self.exit != None:
+        assert self.entrance is None # Required by Problem 3
+
+        if self.exit is not None:
             self.exit.entrance = self
 
 
@@ -72,6 +74,8 @@ class Place(object):
 
 class Insect(object):
     """An Insect, the base class of Ant and Bee, has armor and a Place."""
+
+    watersafe = False # Required by A4
 
     def __init__(self, armor, place=None):
         """Create an Insect with an armor amount and a starting Place."""
@@ -112,6 +116,7 @@ class Bee(Insect):
     """A Bee moves from place to place, following exits and stinging ants."""
 
     name = 'Bee'
+    watersafe = True # Required by A4
 
     def sting(self, ant):
         """Attack an Ant, reducing the Ant's armor by 1."""
@@ -161,7 +166,7 @@ class HarvesterAnt(Ant):
 
     name = 'Harvester'
     implemented = True
-    food_cost = 2
+    food_cost = 2 # Required by Problem 2
 
 
     def action(self, colony):
@@ -170,6 +175,7 @@ class HarvesterAnt(Ant):
         colony -- The AntColony, used to access game state information.
         """
         "*** YOUR CODE HERE ***"
+        # Required by Problem 2
         colony.food += 1
 
 
@@ -184,7 +190,7 @@ class ThrowerAnt(Ant):
     name = 'Thrower'
     implemented = True
     damage = 1
-    food_cost = 4
+    food_cost = 4 # Required by Problem 2
 
     def nearest_bee(self, hive):
         """Return the nearest Bee in a Place that is not the Hive, connected to
@@ -448,6 +454,10 @@ class Water(Place):
         """Add insect if it is watersafe, otherwise reduce its armor to 0."""
         print('added', insect, insect.watersafe)
         "*** YOUR CODE HERE ***"
+        # Required for A4
+        Place.add_insect(self, insect)
+        if not insect.watersafe:
+            insect.reduce_armor(insect.armor)
 
 
 class FireAnt(Ant):
