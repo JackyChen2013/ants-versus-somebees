@@ -657,6 +657,10 @@ def make_slow(action):
     action -- An action method of some Bee
     """
     "*** YOUR CODE HERE ***"
+    def slowed_action(colony):
+        if colony.time % 2 is 0:
+            action(colony)
+    return slowed_action
 
 def make_stun(action):
     """Return a new action method that does nothing.
@@ -664,10 +668,18 @@ def make_stun(action):
     action -- An action method of some Bee
     """
     "*** YOUR CODE HERE ***"
+    return lambda colony: None
 
 def apply_effect(effect, bee, duration):
     """Apply a status effect to a Bee that lasts for duration turns."""
     "*** YOUR CODE HERE ***"
+    originalaction = bee.action
+    timeup = colony.time + duration
+    bee.action = effect(bee.action)
+    while colony.time is not timeup:
+        pass
+
+    bee.action = originalaction
 
 
 class SlowThrower(ThrowerAnt):
@@ -675,6 +687,7 @@ class SlowThrower(ThrowerAnt):
 
     name = 'Slow'
     "*** YOUR CODE HERE ***"
+    food_cost = 4
     implemented = False
 
     def throw_at(self, target):
@@ -687,6 +700,7 @@ class StunThrower(ThrowerAnt):
 
     name = 'Stun'
     "*** YOUR CODE HERE ***"
+    food_cost = 6
     implemented = False
 
     def throw_at(self, target):
