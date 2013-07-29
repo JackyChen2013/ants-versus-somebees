@@ -51,7 +51,16 @@ class Place(object):
         if insect.is_ant():
             # Phase 2: Special handling for BodyguardAnt
             "*** YOUR CODE HERE ***"
-            assert self.ant is None, 'Two ants in {0}'.format(self)
+            if self.ant is not None:
+                assert insect.is_ant()
+                if self.ant.can_contain(insect):
+                    self.ant.contain_ant(insect)
+                elif insect.can_contain(self.ant):
+                    insect.contain_ant(self.ant)
+                    self.ant = insect
+                    return
+                else:
+                    assert self.ant is None, 'Two ants in {0}'.format(self)
             self.ant = insect
         else:
             self.bees.append(insect)
@@ -64,6 +73,8 @@ class Place(object):
         else:
             assert self.ant == insect, '{0} is not in {1}'.format(insect, self)
             "*** YOUR CODE HERE ***"
+            if insect.container:
+                self.ant = insect.ant
             self.ant = None
 
         insect.place = None
@@ -155,6 +166,7 @@ class Ant(Insect):
     damage = 0
     food_cost = 0
     blocks_path = True # Required by A7
+    container = False
 
     def __init__(self, armor=1):
         """Create an Ant with an armor quantity."""
@@ -162,6 +174,14 @@ class Ant(Insect):
 
     def is_ant(self):
         return True
+
+    def can_contain(self, other):
+        if not other.is_ant():
+            raise TypeError("Other needs to be of Ant type")
+        if self.container and self.container is None and not other.container:
+            return True
+        return False
+
 
 
 class HarvesterAnt(Ant):
@@ -477,8 +497,7 @@ class FireAnt(Ant):
         self.armor -= amount
         if self.armor <= 0:
             print('{0} ran out of armor and expired'.format(self))
-            nearby_bees = self.place.bees
-            for bee in nearby_bees:
+            for bee in self.place.bees[:]:
                 bee.reduce_armor(3)
             self.place.remove_insect(self)
 
@@ -511,8 +530,7 @@ class WallAnt(Ant):
 
     def __init__(self):
         "*** YOUR CODE HERE ***"
-        Ant.__init__(self)
-        self.armor = 4 # Required by Problem A6
+        Ant.__init__(self, 4)
 
 
 class NinjaAnt(Ant):
@@ -527,8 +545,7 @@ class NinjaAnt(Ant):
 
     def action(self, colony):
         "*** YOUR CODE HERE ***"
-        nearby_bees = self.place.bees
-        for bee in nearby_bees:
+        for bee in self.place.bees[:]:
             bee.reduce_armor(1)
 
 
@@ -564,7 +581,9 @@ class BodyguardAnt(Ant):
     """BodyguardAnt provides protection to other Ants."""
     name = 'Bodyguard'
     "*** YOUR CODE HERE ***"
-    implemented = False
+    food_cost = 4
+    implemented = True
+    container = True
 
     def __init__(self):
         Ant.__init__(self, 2)
@@ -572,9 +591,15 @@ class BodyguardAnt(Ant):
 
     def contain_ant(self, ant):
         "*** YOUR CODE HERE ***"
+        if not ant.is_ant():
+            raise TypeError("BodyguardAnt can only guard Ant types.")
+        self.ant = ant
 
     def action(self, colony):
         "*** YOUR CODE HERE ***"
+        if self.ant is not None:
+            return self.ant.action(colony)
+
 
 
 class PrincessAnt(Ant):
