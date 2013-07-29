@@ -465,14 +465,15 @@ class FireAnt(Ant):
 
     name = 'Fire'
     damage = 3
-    food_cost = 4 # from Problem 2, introduced in A5
     "*** YOUR CODE HERE ***"
+    food_cost = 4 # from Problem 2, introduced in A5
     implemented = True
 
     def reduce_armor(self, amount):
         "*** YOUR CODE HERE ***"
         self.armor -= amount
         if self.armor <= 0:
+            print('{0} ran out of armor and expired'.format(self))
             nearby_bees = self.place.bees
             for bee in nearby_bees:
                 bee.reduce_armor(3)
@@ -501,11 +502,14 @@ class WallAnt(Ant):
 
     name = 'Wall'
     "*** YOUR CODE HERE ***"
+    food_cost = 4
+
     implemented = False
 
     def __init__(self):
         "*** YOUR CODE HERE ***"
         Ant.__init__(self)
+        self.armor = 4 # Required by Problem A6
 
 
 class NinjaAnt(Ant):
