@@ -215,8 +215,6 @@ class ThrowerAnt(Ant):
     implemented = True
     damage = 1
     food_cost = 4 # Required by Problem 2
-    min_range = 0
-    max_range = 10
 
     def nearest_bee(self, hive):
         """Return the nearest Bee in a Place that is not the Hive, connected to
@@ -228,6 +226,8 @@ class ThrowerAnt(Ant):
         """
         "*** YOUR CODE HERE ***"
         bee_at = self.place
+        min_range = 0
+        max_range = 10
         current_range = 0
         while bee_at != hive and current_range < max_range:
             if len(bee_at.bees) == 0:
@@ -520,8 +520,6 @@ class LongThrower(ThrowerAnt):
     "*** YOUR CODE HERE ***"
     implemented = True
     food_cost = 3
-    min_range = 4
-    max_range = 10
     def nearest_bee(self, hive):
         """Return the nearest Bee in a Place that is not the Hive, connected to
         the ThrowerAnt's Place by following entrances.
@@ -532,6 +530,8 @@ class LongThrower(ThrowerAnt):
         """
         "*** YOUR CODE HERE ***"
         bee_at = self.place
+        min_range = 4
+        max_range = 10
         current_range = 0
         while bee_at != hive and current_range <= max_range:
             if current_range < min_range:
@@ -552,8 +552,6 @@ class ShortThrower(ThrowerAnt):
     "*** YOUR CODE HERE ***"
     implemented = True
     food_cost = 3
-    min_range = 0
-    max_range = 2
     def nearest_bee(self, hive):
         """Return the nearest Bee in a Place that is not the Hive, connected to
         the ThrowerAnt's Place by following entrances.
@@ -564,6 +562,8 @@ class ShortThrower(ThrowerAnt):
         """
         "*** YOUR CODE HERE ***"
         bee_at = self.place
+        min_range = 0
+        max_range = 2
         current_range = 0
         while bee_at != hive and current_range <= max_range:
             if len(bee_at.bees) == 0:
@@ -610,7 +610,9 @@ class ScubaThrower(ThrowerAnt):
 
     name = 'Scuba'
     "*** YOUR CODE HERE ***"
-    implemented = False
+    implemented = True
+    food_cost = 5
+    watersafe = True
 
 
 class HungryAnt(Ant):
