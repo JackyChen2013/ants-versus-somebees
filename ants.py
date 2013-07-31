@@ -33,7 +33,9 @@ class Place(object):
         self.entrance = None  # A Place
         # Phase 1: Add an entrance to the exit
         "*** YOUR CODE HERE ***"
-        if self.exit != None:
+        assert self.entrance is None # Required by Problem 3
+
+        if self.exit is not None:
             self.exit.entrance = self
 
 
@@ -49,7 +51,15 @@ class Place(object):
         if insect.is_ant():
             # Phase 2: Special handling for BodyguardAnt
             "*** YOUR CODE HERE ***"
-            assert self.ant is None, 'Two ants in {0}'.format(self)
+            if self.ant is not None:
+                if self.ant.can_contain(insect):
+                    self.ant.contain_ant(insect)
+                    self.ant.place = self
+                    return
+                elif insect.can_contain(self.ant):
+                    insect.contain_ant(self.ant)
+                else:
+                    assert self.ant is None, 'Two ants in {0}'.format(self)
             self.ant = insect
         else:
             self.bees.append(insect)
@@ -62,6 +72,10 @@ class Place(object):
         else:
             assert self.ant == insect, '{0} is not in {1}'.format(insect, self)
             "*** YOUR CODE HERE ***"
+            if insect.container:
+                self.ant = insect.ant
+                insect.place = self
+                return
             self.ant = None
 
         insect.place = None
@@ -72,6 +86,8 @@ class Place(object):
 
 class Insect(object):
     """An Insect, the base class of Ant and Bee, has armor and a Place."""
+
+    watersafe = False # Required by A4
 
     def __init__(self, armor, place=None):
         """Create an Insect with an armor amount and a starting Place."""
@@ -112,6 +128,7 @@ class Bee(Insect):
     """A Bee moves from place to place, following exits and stinging ants."""
 
     name = 'Bee'
+    watersafe = True # Required by A4
 
     def sting(self, ant):
         """Attack an Ant, reducing the Ant's armor by 1."""
@@ -126,7 +143,9 @@ class Bee(Insect):
         """Return True if this Bee cannot advance to the next Place."""
         # Phase 2: Special handling for NinjaAnt
         "*** YOUR CODE HERE ***"
-        return self.place.ant is not None
+        if self.place.ant is None or not self.place.ant.blocks_path:
+            return False
+        return True
 
     def action(self, colony):
         """A Bee's action stings the Ant that blocks its exit if it is blocked,
@@ -147,6 +166,8 @@ class Ant(Insect):
     implemented = False  # Only implemented Ant classes should be instantiated
     damage = 0
     food_cost = 0
+    blocks_path = True # Required by A7
+    container = False
 
     def __init__(self, armor=1):
         """Create an Ant with an armor quantity."""
@@ -155,13 +176,21 @@ class Ant(Insect):
     def is_ant(self):
         return True
 
+    def can_contain(self, other):
+        if not other.is_ant():
+            raise TypeError("Other needs to be of Ant type")
+        if self.container and self.ant is None and not other.container:
+            return True
+        return False
+
+
 
 class HarvesterAnt(Ant):
     """HarvesterAnt produces 1 additional food per turn for the colony."""
 
     name = 'Harvester'
     implemented = True
-    food_cost = 2
+    food_cost = 2 # Required by Problem 2
 
 
     def action(self, colony):
@@ -170,6 +199,7 @@ class HarvesterAnt(Ant):
         colony -- The AntColony, used to access game state information.
         """
         "*** YOUR CODE HERE ***"
+        # Required by Problem 2
         colony.food += 1
 
 
@@ -184,7 +214,7 @@ class ThrowerAnt(Ant):
     name = 'Thrower'
     implemented = True
     damage = 1
-    food_cost = 4
+    food_cost = 4 # Required by Problem 2
 
     def nearest_bee(self, hive):
         """Return the nearest Bee in a Place that is not the Hive, connected to
@@ -454,6 +484,10 @@ class Water(Place):
         """Add insect if it is watersafe, otherwise reduce its armor to 0."""
         print('added', insect, insect.watersafe)
         "*** YOUR CODE HERE ***"
+        # Required for A4
+        Place.add_insect(self, insect)
+        if not insect.watersafe:
+            insect.reduce_armor(insect.armor)
 
 
 class FireAnt(Ant):
@@ -462,10 +496,18 @@ class FireAnt(Ant):
     name = 'Fire'
     damage = 3
     "*** YOUR CODE HERE ***"
-    implemented = False
+    food_cost = 4 # from Problem 2, introduced in A5
+    implemented = True
 
     def reduce_armor(self, amount):
         "*** YOUR CODE HERE ***"
+        self.armor -= amount
+        if self.armor <= 0:
+            print('{0} ran out of armor and expired'.format(self))
+            for bee in self.place.bees[:]:
+                bee.reduce_armor(3)
+            self.place.remove_insect(self)
+
 
 
 class LongThrower(ThrowerAnt):
@@ -489,11 +531,13 @@ class WallAnt(Ant):
 
     name = 'Wall'
     "*** YOUR CODE HERE ***"
-    implemented = False
+    food_cost = 4
+
+    implemented = True
 
     def __init__(self):
         "*** YOUR CODE HERE ***"
-        Ant.__init__(self)
+        Ant.__init__(self, 4)
 
 
 class NinjaAnt(Ant):
@@ -502,10 +546,15 @@ class NinjaAnt(Ant):
 
     name = 'Ninja'
     "*** YOUR CODE HERE ***"
-    implemented = False
+    food_cost = 6
+    blocks_path = False
+    implemented = True
 
     def action(self, colony):
         "*** YOUR CODE HERE ***"
+        for bee in self.place.bees[:]:
+            bee.reduce_armor(1)
+
 
 
 class ScubaThrower(ThrowerAnt):
@@ -539,7 +588,9 @@ class BodyguardAnt(Ant):
     """BodyguardAnt provides protection to other Ants."""
     name = 'Bodyguard'
     "*** YOUR CODE HERE ***"
-    implemented = False
+    food_cost = 4
+    implemented = True
+    container = True
 
     def __init__(self):
         Ant.__init__(self, 2)
@@ -547,9 +598,15 @@ class BodyguardAnt(Ant):
 
     def contain_ant(self, ant):
         "*** YOUR CODE HERE ***"
+        if not ant.is_ant():
+            raise TypeError("BodyguardAnt can only guard Ant types.")
+        self.ant = ant
 
     def action(self, colony):
         "*** YOUR CODE HERE ***"
+        if self.ant is not None:
+            return self.ant.action(colony)
+
 
 
 class PrincessAnt(Ant):
@@ -557,15 +614,34 @@ class PrincessAnt(Ant):
 
     name = 'Princess'
     "*** YOUR CODE HERE ***"
-    implemented = False
+    food_cost = 6
+    implemented = True
 
     def __init__(self):
         "*** YOUR CODE HERE ***"
+        Ant.__init__(self)
+        self.has_given_buff = False
 
     def action(self, colony):
         """If this PrincessAnt has never taken an action before, it should add 1
         point of armor to all other Ants in the tunnel."""
         "*** YOUR CODE HERE ***"
+        if not self.has_given_buff:
+            def buff_effect(self, place, end):
+                print("Buffing ants in " + str(place))
+                if place is end:
+                    return
+                if place.ant is not None and place.ant is not self:
+                    # If there's an ant, and it isn't the Princess,
+                    place.ant.armor += 1
+                if end is colony.hive:
+                    buff_effect(self, place.entrance, end)
+                else:
+                    buff_effect(self, place.exit, end)
+            buff_effect(self, self.place.entrance, colony.hive)
+            buff_effect(self, self.place, colony.queen)
+            self.has_given_buff = True
+        assert self.has_given_buff
 
 class AntRemover(Ant):
     """Allows the player to remove ants from the board in the GUI."""
