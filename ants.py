@@ -215,6 +215,8 @@ class ThrowerAnt(Ant):
     implemented = True
     damage = 1
     food_cost = 4 # Required by Problem 2
+    min_range = 0
+    max_range = 10
 
     def nearest_bee(self, hive):
         """Return the nearest Bee in a Place that is not the Hive, connected to
@@ -226,7 +228,8 @@ class ThrowerAnt(Ant):
         """
         "*** YOUR CODE HERE ***"
         bee_at = self.place
-        while bee_at != hive:
+        current_range = 0
+        while bee_at != hive and current_range < max_range:
             if len(bee_at.bees) == 0:
                 bee_at = bee_at.entrance
             else:
@@ -516,6 +519,9 @@ class LongThrower(ThrowerAnt):
     name = 'Long'
     "*** YOUR CODE HERE ***"
     implemented = True
+    food_cost = 3
+    min_range = 4
+    max_range = 10
     def nearest_bee(self, hive):
         """Return the nearest Bee in a Place that is not the Hive, connected to
         the ThrowerAnt's Place by following entrances.
@@ -526,11 +532,11 @@ class LongThrower(ThrowerAnt):
         """
         "*** YOUR CODE HERE ***"
         bee_at = self.place
-        count = 0
-        while bee_at != hive:
-            if count < 4:
+        current_range = 0
+        while bee_at != hive and current_range <= max_range:
+            if current_range < min_range:
                 bee_at = bee_at.entrance
-                count += 1
+                current_range += 1
             elif len(bee_at.bees) == 0:
                 bee_at = bee_at.entrance
             else:
@@ -545,6 +551,9 @@ class ShortThrower(ThrowerAnt):
     name = 'Short'
     "*** YOUR CODE HERE ***"
     implemented = True
+    food_cost = 3
+    min_range = 0
+    max_range = 2
     def nearest_bee(self, hive):
         """Return the nearest Bee in a Place that is not the Hive, connected to
         the ThrowerAnt's Place by following entrances.
@@ -555,11 +564,11 @@ class ShortThrower(ThrowerAnt):
         """
         "*** YOUR CODE HERE ***"
         bee_at = self.place
-        count = 0
-        while bee_at != hive and count < 3:
+        current_range = 0
+        while bee_at != hive and current_range <= max_range:
             if len(bee_at.bees) == 0:
                 bee_at = bee_at.entrance
-                count += 1
+                current_range += 1
             else:
                 return random_or_none(bee_at.bees)
         return None
