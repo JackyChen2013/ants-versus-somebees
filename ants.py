@@ -515,7 +515,28 @@ class LongThrower(ThrowerAnt):
 
     name = 'Long'
     "*** YOUR CODE HERE ***"
-    implemented = False
+    implemented = True
+    def nearest_bee(self, hive):
+        """Return the nearest Bee in a Place that is not the Hive, connected to
+        the ThrowerAnt's Place by following entrances.
+
+        This method returns None if there is no such Bee.
+
+        Problem B5: This method returns None if there is no Bee in range.
+        """
+        "*** YOUR CODE HERE ***"
+        bee_at = self.place
+        count = 0
+        while bee_at != hive:
+            if count < 4:
+                bee_at = bee_at.entrance
+                count += 1
+            elif len(bee_at.bees) == 0:
+                bee_at = bee_at.entrance
+            else:
+                return random_or_none(bee_at.bees)
+        return None
+    
 
 
 class ShortThrower(ThrowerAnt):
@@ -523,7 +544,25 @@ class ShortThrower(ThrowerAnt):
 
     name = 'Short'
     "*** YOUR CODE HERE ***"
-    implemented = False
+    implemented = True
+    def nearest_bee(self, hive):
+        """Return the nearest Bee in a Place that is not the Hive, connected to
+        the ThrowerAnt's Place by following entrances.
+
+        This method returns None if there is no such Bee.
+
+        Problem B5: This method returns None if there is no Bee in range.
+        """
+        "*** YOUR CODE HERE ***"
+        bee_at = self.place
+        count = 0
+        while bee_at != hive and count < 3:
+            if len(bee_at.bees) == 0:
+                bee_at = bee_at.entrance
+                count += 1
+            else:
+                return random_or_none(bee_at.bees)
+        return None
 
 
 class WallAnt(Ant):
