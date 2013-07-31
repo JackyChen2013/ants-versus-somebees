@@ -621,17 +621,35 @@ class HungryAnt(Ant):
     """
     name = 'Hungry'
     "*** YOUR CODE HERE ***"
-    implemented = False
+    implemented = True
+    food_cost = 4
+    time_to_digest = 3
 
     def __init__(self):
         Ant.__init__(self)
         "*** YOUR CODE HERE ***"
+        self.digesting = 0
+        self.digest = False
 
     def eat_bee(self, bee):
         "*** YOUR CODE HERE ***"
+        self.place.remove_insect(bee)
+
 
     def action(self, colony):
         "*** YOUR CODE HERE ***"
+        if self.digest :
+            if self.digesting == 3:
+                self.digest = False
+            else:
+                self.digesting += 1
+        else:
+            if len(self.place.bees) != 0:
+                self.eat_bee(random_or_none(self.place.bees))
+                self.digest = True
+                self.digesting = 0
+
+
 
 
 class BodyguardAnt(Ant):
