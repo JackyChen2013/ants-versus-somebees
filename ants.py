@@ -54,7 +54,7 @@ class Place(object):
             if self.ant is not None:
                 if self.ant.can_contain(insect):
                     self.ant.contain_ant(insect)
-                    self.ant.place = self
+                    self.ant.ant.place = self
                     return
                 elif insect.can_contain(self.ant):
                     insect.contain_ant(self.ant)
@@ -159,8 +159,6 @@ class Bee(Insect):
             if self.place.name != 'Hive' and self.armor > 0:
                 self.move_to(self.place.exit)
 
-    def new_action(self, colony):
-        pass
 
 
 class Ant(Insect):
@@ -668,6 +666,7 @@ class BodyguardAnt(Ant):
 
     def action(self, colony):
         "*** YOUR CODE HERE ***"
+
         if self.ant is not None:
             return self.ant.action(colony)
 
