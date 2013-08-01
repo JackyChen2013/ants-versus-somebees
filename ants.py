@@ -159,6 +159,9 @@ class Bee(Insect):
             if self.place.name != 'Hive' and self.armor > 0:
                 self.move_to(self.place.exit)
 
+    def new_action(self, colony):
+        pass
+
 
 class Ant(Insect):
     """An Ant occupies a place and does work for the colony."""
@@ -244,6 +247,7 @@ class ThrowerAnt(Ant):
     def action(self, colony):
         """Throw a leaf at the nearest Bee in range."""
         self.throw_at(self.nearest_bee(colony.hive))
+
 
 
 class Hive(Place):
@@ -629,27 +633,19 @@ class HungryAnt(Ant):
         Ant.__init__(self)
         "*** YOUR CODE HERE ***"
         self.digesting = 0
-        self.digest = False
 
     def eat_bee(self, bee):
         "*** YOUR CODE HERE ***"
-        self.place.remove_insect(bee)
+        bee.reduce_armor(bee.armor)
 
 
     def action(self, colony):
         "*** YOUR CODE HERE ***"
-        if self.digest :
-            if self.digesting == 3:
-                self.digest = False
-            else:
-                self.digesting += 1
+        if self.digesting == 0:
+            self.eat_bee(random_or_none(self.place.bees))
+            self.digesting = 3
         else:
-            if len(self.place.bees) != 0:
-                self.eat_bee(random_or_none(self.place.bees))
-                self.digest = True
-                self.digesting = 0
-
-
+            self.digesting -= 1
 
 
 class BodyguardAnt(Ant):
@@ -674,7 +670,6 @@ class BodyguardAnt(Ant):
         "*** YOUR CODE HERE ***"
         if self.ant is not None:
             return self.ant.action(colony)
-
 
 
 class PrincessAnt(Ant):
@@ -731,6 +726,9 @@ def make_slow(action):
     action -- An action method of some Bee
     """
     "*** YOUR CODE HERE ***"
+    if colony.time % 2 == 0:
+        return action
+    return Bee.new_action
 
 def make_stun(action):
     """Return a new action method that does nothing.
@@ -738,10 +736,17 @@ def make_stun(action):
     action -- An action method of some Bee
     """
     "*** YOUR CODE HERE ***"
+    return Bee.new_action
 
 def apply_effect(effect, bee, duration):
     """Apply a status effect to a Bee that lasts for duration turns."""
     "*** YOUR CODE HERE ***"
+    turns = 0
+    original_action = bee.action
+    while turns <= duration:
+        bee.action = effect(bee.action)
+        turns += 1
+    return original_action
 
 
 class SlowThrower(ThrowerAnt):
@@ -749,7 +754,7 @@ class SlowThrower(ThrowerAnt):
 
     name = 'Slow'
     "*** YOUR CODE HERE ***"
-    implemented = False
+    implemented = True
 
     def throw_at(self, target):
         if target:
@@ -761,7 +766,7 @@ class StunThrower(ThrowerAnt):
 
     name = 'Stun'
     "*** YOUR CODE HERE ***"
-    implemented = False
+    implemented = True
 
     def throw_at(self, target):
         if target:
